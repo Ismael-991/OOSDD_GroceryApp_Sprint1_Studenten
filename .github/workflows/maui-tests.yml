@@ -25,7 +25,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # Installeer workloads per platform om vastlopen te voorkomen
+      # Installeer workloads per platform
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
 
@@ -35,32 +35,26 @@ jobs:
       - name: Install MAUI MacCatalyst workload
         run: dotnet workload install maccatalyst
 
-      # Restore dependencies per platform (optioneel, maar stabieler)
-      - name: Restore Android
-        run: dotnet restore -f net8.0-android
-
-      - name: Restore iOS
-        run: dotnet restore -f net8.0-ios
-
-      - name: Restore MacCatalyst
-        run: dotnet restore -f net8.0-maccatalyst
+      # Restore dependencies (geef expliciet het projectbestand op)
+      - name: Restore Android/iOS/MacCatalyst
+        run: dotnet restore Grocery.App/Grocery.App.csproj
 
       # Build per platform
       - name: Build Android
-        run: dotnet build -f net8.0-android --configuration Release --no-restore
+        run: dotnet build Grocery.App/Grocery.App.csproj -f net8.0-android --configuration Release --no-restore
 
       - name: Build iOS
-        run: dotnet build -f net8.0-ios --configuration Release --no-restore
+        run: dotnet build Grocery.App/Grocery.App.csproj -f net8.0-ios --configuration Release --no-restore
 
       - name: Build MacCatalyst
-        run: dotnet build -f net8.0-maccatalyst --configuration Release --no-restore
+        run: dotnet build Grocery.App/Grocery.App.csproj -f net8.0-maccatalyst --configuration Release --no-restore
 
-      # Run unit tests (gebruik de juiste target framework als tests specifiek zijn)
+      # Run unit tests per platform (gebruik de juiste target framework als tests specifiek zijn)
       - name: Run unit tests Android
-        run: dotnet test -f net8.0-android --configuration Release --no-build --no-restore --verbosity normal
+        run: dotnet test Grocery.App/Grocery.App.csproj -f net8.0-android --configuration Release --no-build --no-restore --verbosity normal
 
       - name: Run unit tests iOS
-        run: dotnet test -f net8.0-ios --configuration Release --no-build --no-restore --verbosity normal
+        run: dotnet test Grocery.App/Grocery.App.csproj -f net8.0-ios --configuration Release --no-build --no-restore --verbosity normal
 
       - name: Run unit tests MacCatalyst
-        run: dotnet test -f net8.0-maccatalyst --configuration Release --no-build --no-restore --verbosity normal
+        run: dotnet test Grocery.App/Grocery.App.csproj -f net8.0-maccatalyst --configuration Release --no-build --no-restore --verbosity normal
