@@ -15,22 +15,52 @@ on:
 jobs:
   test:
     runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Installeer .NET SDK
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Installeer MAUI workloads
-        run: dotnet workload install maui-android ios maccatalyst
+      # Installeer workloads per platform om vastlopen te voorkomen
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
 
-      - name: Herstel afhankelijkheden
-        run: dotnet restore
+      - name: Install MAUI iOS workload
+        run: dotnet workload install ios
 
-      - name: Bouw de applicatie
-        run: dotnet build --configuration Release --no-restore
+      - name: Install MAUI MacCatalyst workload
+        run: dotnet workload install maccatalyst
 
-      - name: Voer unit tests uit
-        run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
+      # Restore dependencies per platform (optioneel, maar stabieler)
+      - name: Restore Android
+        run: dotnet restore -f net8.0-android
+
+      - name: Restore iOS
+        run: dotnet restore -f net8.0-ios
+
+      - name: Restore MacCatalyst
+        run: dotnet restore -f net8.0-maccatalyst
+
+      # Build per platform
+      - name: Build Android
+        run: dotnet build -f net8.0-android --configuration Release --no-restore
+
+      - name: Build iOS
+        run: dotnet build -f net8.0-ios --configuration Release --no-restore
+
+      - name: Build MacCatalyst
+        run: dotnet build -f net8.0-maccatalyst --configuration Release --no-restore
+
+      # Run unit tests (gebruik de juiste target framework als tests specifiek zijn)
+      - name: Run unit tests Android
+        run: dotnet test -f net8.0-android --configuration Release --no-build --no-restore --verbosity normal
+
+      - name: Run unit tests iOS
+        run: dotnet test -f net8.0-ios --configuration Release --no-build --no-restore --verbosity normal
+
+      - name: Run unit tests MacCatalyst
+        run: dotnet test -f net8.0-maccatalyst --configuration Release --no-build --no-restore --verbosity normal
